@@ -9,7 +9,6 @@ contract Dating is ERC20 {
         string message;
     }
 
-    
     struct Notification {
         string user;
         string friend;
