@@ -44,17 +44,19 @@ contract Dating is ERC20 {
     event newHandsome(string name);
     event newSexyChick(string name);
 
-    constructor() ERC20("DATE","DATE") {
+    constructor() ERC20("DATE", "DATE") {
         owner = payable(msg.sender);
         _mint(msg.sender, 100000);
     }
 
-    function isCommited()public view returns(bool){
+    function isCommited() public view returns (bool) {
         return users[loggedInUserName][0].isCommited;
     }
 
-    function setCommited()public{
-        users[loggedInUserName][0].isCommited = !(users[loggedInUserName][0].isCommited);
+    function setCommited() public {
+        users[loggedInUserName][0].isCommited = !(
+            users[loggedInUserName][0].isCommited
+        );
     }
 
     function _mintNewUserReward() internal {
@@ -69,7 +71,8 @@ contract Dating is ERC20 {
         _mintNewUserReward();
         super._transfer(from, to, value);
     }
-    function getLoggedInUser()public view returns(User memory){
+
+    function getLoggedInUser() public view returns (User memory) {
         return users[loggedInUserName][0];
     }
 
@@ -100,5 +103,26 @@ contract Dating is ERC20 {
         return users[_name][0];
     }
 
-  
+    function logIn(
+        string memory _name,
+        string memory _password
+    ) public returns (bool) {
+        require(!isLoggedIn, "you are already logged In");
+        require(isUser[_name], "user not found");
+        require(
+            users[_name][0].password == keccak256(abi.encode(_password)),
+            "message"
+        );
+        isLoggedIn = true;
+        loggedInUserName = _name;
+        return true;
+    }
+
+    function logOut() public returns (bool) {
+        require(isLoggedIn, "you are already logged out");
+        isLoggedIn = false;
+        loggedInUserName = "";
+        loggedInUserName;
+        return true;
+    }
 }
