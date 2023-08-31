@@ -125,4 +125,39 @@ contract Dating is ERC20 {
         loggedInUserName;
         return true;
     }
+
+    function sendFriendRequest(
+        string memory _to
+    ) public returns (Notification[] memory) {
+        require(isLoggedIn, "you are already logged In");
+        _transfer(msg.sender, owner, 20);
+        notifications[_to].push(
+            Notification(loggedInUserName, _to, "friend request")
+        );
+        return notifications[loggedInUserName];
+    }
+
+    string[] public friendsRequets;
+
+    function acceptFriendRequest(
+        string memory _friend
+    ) public returns (Notification[] memory) {
+        require(isLoggedIn, "you are already logged out");
+        uint256 len = notifications[loggedInUserName].length;
+        while (friendsRequets.length > 0) {
+            friendsRequets.pop();
+        }
+        for (uint256 i = 0; i < len; i++) {
+            if (
+                keccak256(
+                    abi.encode(notifications[loggedInUserName][i].user)
+                ) == keccak256(abi.encode(_friend))
+            ) {
+                delete notifications[loggedInUserName][i];
+                friends[loggedInUserName].push(_friend);
+                friends[_friend].push(loggedInUserName);
+            }
+        }
+        return notifications[loggedInUserName];
+    }
 }
