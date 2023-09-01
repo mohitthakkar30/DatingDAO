@@ -160,4 +160,34 @@ contract Dating is ERC20 {
         }
         return notifications[loggedInUserName];
     }
+
+    function sendMessage(
+        string memory _to,
+        string memory _msg
+    ) public returns (Message[] memory) {
+        uint256 noOfFriends = friends[loggedInUserName].length;
+        for (uint256 i = 0; i < noOfFriends; i++) {
+            if (
+                keccak256(abi.encode(_to)) ==
+                keccak256(abi.encode(friends[loggedInUserName][i]))
+            ) {
+                _transfer(msg.sender, owner, 20);
+                messages[loggedInUserName].push(Message(_to, _msg));
+                messages[_to].push(Message(loggedInUserName, _msg));
+            }
+        }
+        return messages[loggedInUserName];
+    }
+
+    function getAllMessages() public view returns (Message[] memory) {
+        return messages[loggedInUserName];
+    }
+
+    function getAllNotifications() public view returns (Notification[] memory) {
+        return notifications[loggedInUserName];
+    }
+
+    function getAllUsers() public view returns (string[] memory) {
+        return userNames;
+    }
 }
