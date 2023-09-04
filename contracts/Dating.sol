@@ -190,4 +190,72 @@ contract Dating is ERC20 {
     function getAllUsers() public view returns (string[] memory) {
         return userNames;
     }
+
+    function handSomeBoy(
+        string memory _name
+    ) public returns (uint256, string memory) {
+        if (users[_name][0].likes > handSomeLikes) {
+            handSomeLikes = users[_name][0].likes;
+            handSomeGuy = _name;
+            emit newHandsome(handSomeGuy);
+        }
+        return (handSomeLikes, handSomeGuy);
+    }
+
+    function beautifulGirl(
+        string memory _name
+    ) public returns (uint256, string memory) {
+        if (users[_name][0].likes > sexyChickLikes) {
+            sexyChickLikes = users[_name][0].likes;
+            sexyChick = _name;
+            emit newSexyChick(sexyChick);
+        }
+        return (sexyChickLikes, sexyChick);
+    }
+
+    function isLiked(string memory name) public view returns (bool) {
+        uint256 noOfLiked = likedBy[name].length;
+        for (uint256 i = 0; i < noOfLiked; i++) {
+            if (
+                keccak256(abi.encode(loggedInUserName)) ==
+                keccak256(abi.encode(likedBy[name][i]))
+            ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function HandleLike(string memory name) public returns (bool) {
+        require(
+            keccak256(abi.encode(name)) !=
+                keccak256(abi.encode(loggedInUserName)),
+            "No self Liking"
+        );
+        bool doesHe = isLiked(name);
+        require(!doesHe, "You already liked");
+        _transfer(msg.sender, owner, 20);
+        likedBy[name].push(loggedInUserName);
+        users[name][0].likes += 1;
+        emit liked(loggedInUserName, name);
+        if (
+            keccak256(abi.encode("male")) ==
+            keccak256(abi.encode(users[name][0].gender))
+        ) {
+            handSomeBoy(name);
+        } else {
+            beautifulGirl(name);
+        }
+        return doesHe;
+    }
+
+    function Donations() public payable {
+        (bool success, ) = owner.call{value: msg.value}("");
+        require(success, "Failed to send money");
+    }
+
+    function GetTokkens() public {
+        require(balanceOf(msg.sender) < 20, "");
+        _transfer(owner, msg.sender, 500);
+    }
 }
